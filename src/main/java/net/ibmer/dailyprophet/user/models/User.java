@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.ibmer.dailyprophet.house.models.House;
+import net.ibmer.dailyprophet.wand.models.Wand;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,6 +33,12 @@ public class User implements UserDetails, Principal {
     private String imageUrl;
     private Boolean accountLocked;
     private Boolean enabled;
+
+    @ManyToOne
+    private Wand wand;
+
+    @ManyToOne
+    private House house;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Role> roles;

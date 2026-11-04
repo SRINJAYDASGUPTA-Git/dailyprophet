@@ -46,6 +46,7 @@ public class AuthenticationService {
         if (authenticationRequest.name() == null || authenticationRequest.email() == null || authenticationRequest.password() == null) {
             throw new BadRequestException("Name, email, and password must not be null");
         }
+        
         User user = User.builder()
                 .name(authenticationRequest.name())
                 .email(authenticationRequest.email())
