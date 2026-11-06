@@ -18,6 +18,7 @@ import java.util.List;
 public class House {
     @Id
     String name;
+
     String imageUrl;
 
     @OneToMany(mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.ibmer.dailyprophet.house.models.House;
+import net.ibmer.dailyprophet.patronus.models.Patronus;
 import net.ibmer.dailyprophet.wand.models.Wand;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -39,6 +40,9 @@ public class User implements UserDetails, Principal {
 
     @ManyToOne
     private House house;
+
+    @ManyToOne
+    private Patronus patronus;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Role> roles;
