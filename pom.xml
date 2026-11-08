@@ -196,6 +196,62 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>create-entity</id>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<!-- 1. Convert groupId dots to slashes (e.g., net.ibmer -> net/ibmer) -->
+								<loadresource property="groupPath">
+									<propertyresource name="project.groupId"/>
+									<filterchain>
+										<tokenfilter>
+											<filetokenizer/>
+											<replacestring from="." to="/"/>
+										</tokenfilter>
+									</filterchain>
+								</loadresource>
+
+								<!-- 2. Remove hyphens from artifactId (Java packages can't have hyphens) -->
+								<loadresource property="artifactPackage">
+									<propertyresource name="project.artifactId"/>
+									<filterchain>
+										<tokenfilter>
+											<filetokenizer/>
+											<replacestring from="-" to=""/>
+										</tokenfilter>
+									</filterchain>
+								</loadresource>
+
+								<!-- 3. Prompt for the entity name -->
+								<input message="Enter the new entity name:" addproperty="entityName" />
+
+								<!-- 4. Construct the dynamic path -->
+								<property name="basePath" value="src/main/java/${groupPath}/${artifactPackage}/${entityName}" />
+
+								<!-- 5. Generate the folders -->
+								<mkdir dir="${basePath}" />
+								<mkdir dir="${basePath}/controllers" />
+								<mkdir dir="${basePath}/services" />
+								<mkdir dir="${basePath}/repositories" />
+								<mkdir dir="${basePath}/models" />
+								<mkdir dir="${basePath}/dto" />
+								<mkdir dir="${basePath}/mapper" />
+
+								<echo message="Created entity structure at: ${basePath}" />
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
