@@ -239,12 +239,24 @@
 
 								<!-- 5. Generate the folders -->
 								<mkdir dir="${basePath}" />
+
 								<mkdir dir="${basePath}/controllers" />
+								<touch file="${basePath}/controllers/.gitkeep" />
+
 								<mkdir dir="${basePath}/services" />
+								<touch file="${basePath}/services/.gitkeep" />
+
 								<mkdir dir="${basePath}/repositories" />
+								<touch file="${basePath}/repositories/.gitkeep" />
+
 								<mkdir dir="${basePath}/models" />
+								<touch file="${basePath}/models/.gitkeep" />
+
 								<mkdir dir="${basePath}/dto" />
+								<touch file="${basePath}/dto/.gitkeep" />
+
 								<mkdir dir="${basePath}/mapper" />
+								<touch file="${basePath}/mapper/.gitkeep" />
 
 								<echo message="Created entity structure at: ${basePath}" />
 							</target>
