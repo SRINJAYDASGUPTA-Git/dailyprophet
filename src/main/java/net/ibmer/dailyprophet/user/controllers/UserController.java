@@ -1,6 +1,6 @@
 package net.ibmer.dailyprophet.user.controllers;
 
-import net.ibmer.dailyprophet.user.dto.UserResponse;
+import net.ibmer.dailyprophet.user.dto.UserFullResponse;
 import net.ibmer.dailyprophet.user.dto.UserUpdateRequest;
 import net.ibmer.dailyprophet.user.services.UserServices;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +25,7 @@ public class UserController {
             summary = "Get Current User",
             description = "Returns the details of the currently authenticated user."
     )
-    public ResponseEntity<UserResponse> getCurrentUser(Authentication connectedUser) {
+    public ResponseEntity<UserFullResponse> getCurrentUser(Authentication connectedUser) {
         return ResponseEntity.ok(userService.getCurrentUser(connectedUser));
     }
 
@@ -34,7 +34,7 @@ public class UserController {
             summary = "Update Current User",
             description = "Updates the details of the currently authenticated user. The request body should contain the updated user information."
     )
-    public ResponseEntity<UserResponse> updateCurrentUser(Authentication connectedUser, @RequestBody UserUpdateRequest request) {
+    public ResponseEntity<UserFullResponse> updateCurrentUser(Authentication connectedUser, @RequestBody UserUpdateRequest request) {
         return ResponseEntity.ok(userService.updateCurrentUser(connectedUser, request));
     }
 }

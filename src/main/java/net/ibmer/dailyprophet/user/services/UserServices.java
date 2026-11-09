@@ -1,6 +1,6 @@
 package net.ibmer.dailyprophet.user.services;
 
-import net.ibmer.dailyprophet.user.dto.UserResponse;
+import net.ibmer.dailyprophet.user.dto.UserFullResponse;
 import net.ibmer.dailyprophet.user.dto.UserUpdateRequest;
 import net.ibmer.dailyprophet.user.mappers.UserMapper;
 import net.ibmer.dailyprophet.user.models.User;
@@ -19,13 +19,13 @@ public class UserServices {
     private final UserMapper userMapper;
 
     @Transactional
-    public UserResponse getCurrentUser(Authentication connectedUser) {
+    public UserFullResponse getCurrentUser(Authentication connectedUser) {
         User user = (User) connectedUser.getPrincipal();
         //        log.info(response.toString());
-        return userMapper.toUserResponse(user);
+        return userMapper.toUserFullResponse(user);
     }
 
-    public UserResponse updateCurrentUser(Authentication connectedUser, UserUpdateRequest request) {
+    public UserFullResponse updateCurrentUser(Authentication connectedUser, UserUpdateRequest request) {
         User user = (User) connectedUser.getPrincipal();
         if (request.name() != null) {
             user.setName(request.name());
@@ -34,7 +34,7 @@ public class UserServices {
             user.setImageUrl(request.imageUrl());
         }
         userRepository.save(user);
-        return userMapper.toUserResponse(user);
+        return userMapper.toUserFullResponse(user);
     }
 
 }

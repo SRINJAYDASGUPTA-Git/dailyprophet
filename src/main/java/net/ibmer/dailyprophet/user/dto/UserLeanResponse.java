@@ -11,12 +11,8 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @ToString
-public class UserResponse {
+public class UserLeanResponse {
     private UUID id;
     private String name;
-    private String email;
     private String imageUrl;
-    private Boolean accountLocked;
-    private Boolean enabled;
-    private List<String> roles;
 }
