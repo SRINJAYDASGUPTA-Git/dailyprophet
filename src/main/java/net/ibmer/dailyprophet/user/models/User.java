@@ -46,22 +46,22 @@ public class User implements UserDetails, Principal {
     @ManyToOne
     private Patronus patronus;
 
-    @ManyToMany
+    @OneToMany(mappedBy = "owner")
     private List<Post> posts;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "likedBy")
     private List<Post> likedPosts;
 
-    @ManyToMany
+    @OneToMany(mappedBy = "author")
     private List<Comment> comments;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "likedBy")
     private List<Comment> likedComments;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "sharedBy")
     private List<Post> sharedPosts;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "savedBy")
     private List<Post> savedPosts;
 
     @ManyToMany(fetch = FetchType.EAGER)

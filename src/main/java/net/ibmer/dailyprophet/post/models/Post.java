@@ -34,7 +34,7 @@ public class Post {
     @Column(updatable = false)
     private LocalDateTime timestamp;
 
-    @OneToMany
+    @OneToMany(mappedBy = "post")
     private List<Comment> comment;
 
     @ManyToMany
