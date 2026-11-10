@@ -9,17 +9,18 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class CommentMapper {
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
 
     public CommentResponse toCommentResponse(Comment comment){
         return CommentResponse.builder()
                 .id(comment.getId())
-                .postId(comment.getPost().getId())
+                .postId(comment.getPostId())
                 .author(userMapper.toUserLeanResponse(comment.getAuthor()))
-                .likedBy(
-                        comment.getLikedBy().stream().map(userMapper::toUserLeanResponse).toList()
-                )
-                //.replies()
+                .body (comment.getBody ())
+                .edited (comment.getEdited ())
+                .timestamp (comment.getTimestamp ())
+                .likes(comment.getLikes())
+                .replyCount (comment.getReplyCount ())
                 .build();
     }
 }
