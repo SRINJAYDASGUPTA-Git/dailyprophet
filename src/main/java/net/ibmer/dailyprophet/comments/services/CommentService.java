@@ -52,7 +52,7 @@ public class CommentService {
     }
 
     public PageResponse<CommentResponse> getRepliesByParentComment (int size, int page, UUID parentCommentId){
-        if (size < 1 || size > 50) {
+        if (size < 1 || size > 20) {
             throw new IllegalArgumentException("Page size must be between 1 and 20");
         }
         Pageable pageable = PageRequest.of (page, size);
@@ -71,7 +71,7 @@ public class CommentService {
 
     }
 
-    private CommentResponse commentOnPost(Authentication connectedUser, CommentRequest commentRequest){
+    public CommentResponse commentOnPost(Authentication connectedUser, CommentRequest commentRequest){
         User user = (User) connectedUser.getPrincipal ();
         if (user == null)
             throw new UnauthorizedException ("No Authenticated User");
