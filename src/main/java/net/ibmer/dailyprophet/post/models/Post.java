@@ -27,6 +27,8 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    private List<String> mediaUrls;
+
     @Nullable
     private String caption;
 
