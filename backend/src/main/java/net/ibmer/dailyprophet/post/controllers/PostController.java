@@ -31,6 +31,34 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostById(postId));
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<PageResponse<PostResponse>> getAllPostByUser(
+            @PathVariable UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+
+    ){
+        return ResponseEntity.ok(postService.getAllPostsByUser(userId, page, size));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<PageResponse<PostResponse>> getAllPostsByMe(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ResponseEntity.ok(postService.getAllPostsByMe(authentication, page, size));
+    }
+
+    @GetMapping("/archived")
+    public ResponseEntity<PageResponse<PostResponse>> getAllArchivedPosts(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ResponseEntity.ok(postService.getAllArchivedPosts(authentication, page, size));
+    }
+
     @PostMapping
     public ResponseEntity<PostResponse> createPost(
             Authentication authentication,

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="maven-antrun-" default="main">
+  <target name="main">
+    <loadresource property="groupPath">
+      <propertyresource name="project.groupId" />
+      <filterchain>
+        <tokenfilter>
+          <filetokenizer />
+          <replacestring from="." to="/" />
+        </tokenfilter>
+      </filterchain>
+    </loadresource>
+    <loadresource property="artifactPackage">
+      <propertyresource name="project.artifactId" />
+      <filterchain>
+        <tokenfilter>
+          <filetokenizer />
+          <replacestring from="-" to="" />
+        </tokenfilter>
+      </filterchain>
+    </loadresource>
+    <input addproperty="entityName" message="Enter the new entity name:" />
+    <property name="basePath" value="src/main/java/${groupPath}/${artifactPackage}/${entityName}" />
+    <mkdir dir="${basePath}" />
+    <mkdir dir="${basePath}/controllers" />
+    <mkdir dir="${basePath}/services" />
+    <mkdir dir="${basePath}/repositories" />
+    <mkdir dir="${basePath}/models" />
+    <mkdir dir="${basePath}/dto" />
+    <mkdir dir="${basePath}/mapper" />
+    <echo message="Created entity structure at: ${basePath}" />
+  </target>
+</project>

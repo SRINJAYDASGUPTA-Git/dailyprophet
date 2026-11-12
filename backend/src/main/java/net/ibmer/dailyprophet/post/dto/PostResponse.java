@@ -19,6 +19,8 @@ public class PostResponse {
     private String caption;
     private LocalDateTime timestamp;
     private UserLeanResponse owner;
+    private Boolean isDeleted;
+    private Boolean isArchived;
 
     private Integer likesCount;
     private Integer commentsCount;

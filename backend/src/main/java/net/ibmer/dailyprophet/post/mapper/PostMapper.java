@@ -16,6 +16,8 @@ public class PostMapper {
                 .id(post.getId())
                 .caption(post.getCaption())
                 .timestamp(post.getTimestamp())
+                .isArchived(post.getIsArchived())
+                .isDeleted(post.getIsDeleted())
                 .owner(userMapper.toUserLeanResponse(post.getOwner()))
                 .likesCount(post.getLikedBy().size())
                 .mediaUrls(post.getMediaUrls())

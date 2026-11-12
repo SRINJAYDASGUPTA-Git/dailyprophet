@@ -28,6 +28,8 @@ public class Post {
     private UUID id;
 
     private List<String> mediaUrls;
+    private Boolean isDeleted;
+    private Boolean isArchived;
 
     @Nullable
     private String caption;
