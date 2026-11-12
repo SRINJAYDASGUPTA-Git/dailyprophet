@@ -31,7 +31,7 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostById(postId));
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<PageResponse<PostResponse>> getAllPostByUser(
             @PathVariable UUID userId,
             @RequestParam(defaultValue = "0") int page,

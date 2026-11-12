@@ -1,6 +1,8 @@
 package net.ibmer.dailyprophet.post.services;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.ibmer.dailyprophet.exceptions.UnauthorizedException;
 import net.ibmer.dailyprophet.post.dto.PostRequest;
 import net.ibmer.dailyprophet.post.dto.PostResponse;
@@ -24,6 +26,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PostService {
 //    getAllPosts
 //    getPostById
@@ -127,6 +130,8 @@ public class PostService {
                 .mediaUrls(postRequest.mediaUrls())
                 .caption(postRequest.caption() != null ? postRequest.caption() : "")
                 .timestamp(LocalDateTime.now())
+                .isArchived(false)
+                .isDeleted(false)
                 .owner(user)
                 .build();
 
@@ -176,6 +181,7 @@ public class PostService {
         postRepository.delete(post);
       }
 
+    @Transactional
     public void likePost(Authentication authentication, UUID postId) {
         User user = (User) authentication.getPrincipal();
         if (user == null) {
@@ -191,22 +197,29 @@ public class PostService {
         }
     }
 
-
+    @Transactional
     public void unlikePost(Authentication authentication, UUID postId) {
+        log.info("Starting Unlike: {}", postId);
         User user = (User) authentication.getPrincipal();
         if (user == null) {
             throw new UnauthorizedException("No Authenticated User");
         }
 
+        log.info("User Verified: {}", user.getName());
+
         Post post = postRepository.findByIsArchivedAndIsDeletedAndId(false, false, postId)
                 .orElseThrow(() -> new NoSuchElementException("Post not found"));
 
-        if (post.getLikedBy().remove(user)) {
+        log.info("Post Found, postId={}, postLikes={}", post.getId(), post.getLikedBy().toString());
+        if (post.getLikedBy().contains(user)) {
+            post.getLikedBy().remove(user);
             postRepository.save(post);
         }
+        log.info("Post Unliked, postId={}, postLikes={}", post.getId(), post.getLikedBy().toString());
+
     }
 
-
+    @Transactional
     public void savePost(Authentication authentication, UUID postId) {
         User user = (User) authentication.getPrincipal();
         if (user == null) {
@@ -222,7 +235,7 @@ public class PostService {
         }
     }
 
-
+    @Transactional
     public void unsavePost(Authentication authentication, UUID postId) {
         User user = (User) authentication.getPrincipal();
         if (user == null) {

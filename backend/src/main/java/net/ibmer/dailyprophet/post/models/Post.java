@@ -13,7 +13,9 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -42,13 +44,13 @@ public class Post {
     private List<Comment> comment;
 
     @ManyToMany
-    private List<User> sharedBy;
+    private Set<User> sharedBy= new HashSet<>();
 
     @ManyToMany
-    private List<User> savedBy;
+    private Set<User> savedBy= new HashSet<>();
 
     @ManyToMany
-    private List<User> likedBy;
+    private Set<User> likedBy= new HashSet<>();
 
     @ManyToOne
     private User owner;

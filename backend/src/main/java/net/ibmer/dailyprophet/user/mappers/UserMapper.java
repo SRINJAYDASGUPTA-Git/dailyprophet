@@ -28,9 +28,10 @@ public class UserMapper {
                 .accountLocked(user.getAccountLocked())
                 .enabled(user.getEnabled())
                 .roles(user.getRoles().stream().map(Role::getName).toList())
-                .wand(wandMapper.toWandResponse(user.getWand()))
-                .patronus(patronusMapper.toPatronusResponse(user.getPatronus()))
-                .house(houseMapper.toHouseResponse(user.getHouse()))
+
+                .wand(user.getWand() != null ? wandMapper.toWandResponse(user.getWand()) : null)
+                .patronus(user.getPatronus() != null ? patronusMapper.toPatronusResponse(user.getPatronus()) : null)
+                .house(user.getHouse() != null ? houseMapper.toHouseResponse(user.getHouse()) : null)
 
                 // TODO: add after implementation
                 //.post(postMapper.toPostResponse(user.getPost()))

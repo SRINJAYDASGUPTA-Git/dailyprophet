@@ -19,11 +19,11 @@ public class PostMapper {
                 .isArchived(post.getIsArchived())
                 .isDeleted(post.getIsDeleted())
                 .owner(userMapper.toUserLeanResponse(post.getOwner()))
-                .likesCount(post.getLikedBy().size())
+                .likesCount(post.getLikedBy() != null ? post.getLikedBy().size() : 0)
                 .mediaUrls(post.getMediaUrls())
-                .commentsCount(post.getComment().size())
-                .sharesCount(post.getSharedBy().size())
-                .savesCount(post.getSavedBy().size())
+                .commentsCount(post.getComment() != null ? post.getComment().size() : 0)
+                .sharesCount(post.getSharedBy() != null ? post.getSharedBy().size() : 0)
+                .savesCount(post.getSavedBy() != null ? post.getSavedBy().size() : 0)
                 .build();
     }
 }
