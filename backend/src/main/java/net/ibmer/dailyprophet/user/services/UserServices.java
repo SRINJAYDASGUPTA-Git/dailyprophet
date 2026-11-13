@@ -182,7 +182,7 @@ public class UserServices {
                 () -> new NoSuchElementException ("House not found")
         );
 
-        Wand wand = wandRepo.findById (profile.wand ().imageKey ()).orElseThrow (
+        Wand wand = wandRepo.findById (profile.wand ().imageKey ()+profile.wand ().core ()).orElseThrow (
                 () -> new NoSuchElementException ("Wand Not Found")
         );
 

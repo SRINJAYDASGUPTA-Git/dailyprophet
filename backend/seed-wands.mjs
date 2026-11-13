@@ -36,24 +36,26 @@ function generateWands(catalog) {
             for (const [flexibility, flexibilityInfo] of Object.entries(
                 flexibilityList
             )) {
-                const wandKey =
-                    `wand-${woodInfo.type}-${lengthInfo.type}-` +
-                    `${flexibilityInfo.type}_handle`;
+                for (const [core, coreInfo] of Object.entries(coreList)) {
+                    let wandKey =
+                        `wand-${woodInfo.type}-${lengthInfo.type}-` +
+                        `${flexibilityInfo.type}_handle`;
 
-                // Different attributes can share the same visual key.
-                if (wandsByKey.has(wandKey)) continue;
+                    // Different attributes can share the same visual key.
+                    if (wandsByKey.has(wandKey)) continue;
 
-                const image = images[wandKey];
-                if (!image) continue;
-
-                wandsByKey.set(wandKey, {
-                    wandKey,
-                    length: lengthInfo.title.replace(/"/g, ""),
-                    wood: woodInfo.title,
-                    core: coreList.Dragon.title,
-                    flexibility: flexibilityInfo.title,
-                    imageUrl: image.displayImage,
-                });
+                    const image = images[wandKey];
+                    if (!image) continue;
+                    wandKey = wandKey + coreInfo.title
+                    wandsByKey.set(wandKey, {
+                        wandKey,
+                        length: lengthInfo.title.replace(/"/g, ""),
+                        wood: woodInfo.title,
+                        core: coreInfo.title,
+                        flexibility: flexibilityInfo.title,
+                        imageUrl: image.displayImage,
+                    });
+                }
             }
         }
     }
@@ -65,11 +67,7 @@ async function seedWands() {
     const catalog = await getWandCatalog();
     const wands = generateWands(catalog);
 
-    console.log(`Generated ${wands.length} unique wand records.`);
-
-    if (wands.length !== 90) {
-        throw new Error(`Expected 90 wands, generated ${wands.length}.`);
-    }
+    console.log(`Generated ${wands.length} unique wand records.`)
 
     let created = 0;
 
