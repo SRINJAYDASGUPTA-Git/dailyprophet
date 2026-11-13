@@ -199,24 +199,29 @@ public class PostService {
 
     @Transactional
     public void unlikePost(Authentication authentication, UUID postId) {
-        log.info("Starting Unlike: {}", postId);
+
         User user = (User) authentication.getPrincipal();
+
         if (user == null) {
             throw new UnauthorizedException("No Authenticated User");
         }
 
-        log.info("User Verified: {}", user.getName());
-
-        Post post = postRepository.findByIsArchivedAndIsDeletedAndId(false, false, postId)
+        Post post = postRepository
+                .findByIsArchivedAndIsDeletedAndId(false, false, postId)
                 .orElseThrow(() -> new NoSuchElementException("Post not found"));
 
-        log.info("Post Found, postId={}, postLikes={}", post.getId(), post.getLikedBy().toString());
-        if (post.getLikedBy().contains(user)) {
-            post.getLikedBy().remove(user);
-            postRepository.save(post);
-        }
-        log.info("Post Unliked, postId={}, postLikes={}", post.getId(), post.getLikedBy().toString());
+        log.info("Unliking post={}, user={}", postId, user.getId());
 
+        boolean removed = post.getLikedBy()
+                .removeIf(likedUser ->
+                        likedUser.getId().equals(user.getId())
+                );
+
+        if (removed) {
+            log.info("Post unliked successfully: {}", postId);
+        } else {
+            log.info("User had not liked this post: {}", postId);
+        }
     }
 
     @Transactional
@@ -245,8 +250,15 @@ public class PostService {
         Post post = postRepository.findByIsArchivedAndIsDeletedAndId(false, false, postId)
                 .orElseThrow(() -> new NoSuchElementException("Post not found"));
 
-        if (post.getSavedBy().remove(user)) {
-            postRepository.save(post);
+        boolean removed = post.getSavedBy ()
+                .removeIf(savedUser ->
+                        savedUser.getId().equals(user.getId())
+                );
+
+        if (removed) {
+            log.info("Post unsaved successfully: {}", postId);
+        } else {
+            log.info("User had not saved this post: {}", postId);
         }
     }
 }

@@ -2,6 +2,7 @@ package net.ibmer.dailyprophet.comments.services;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.ibmer.dailyprophet.comments.dto.CommentRequest;
 import net.ibmer.dailyprophet.comments.dto.CommentResponse;
 import net.ibmer.dailyprophet.comments.mapper.CommentMapper;
@@ -25,6 +26,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CommentService {
 
     private final CommentMapper commentMapper;
@@ -162,14 +164,27 @@ public class CommentService {
     public void unlikeComment(Authentication connectedUser, UUID commentId) {
 
         User user = (User) connectedUser.getPrincipal();
+        if (user == null) {
+            throw new UnauthorizedException("No Authenticated User");
+        }
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() ->
                         new NoSuchElementException("Comment not found"));
 
-        if (comment.getLikedBy().remove(user)) {
-            comment.setLikes(comment.getLikes() - 1);
+        boolean removed = comment.getLikedBy()
+                .removeIf(likedUser ->
+                        likedUser.getId().equals(user.getId())
+                );
+
+        if (removed) {
+            comment.setLikes (comment.getLikes () - 1);
+            log.info("Comment unliked successfully: {}", commentId);
+        } else {
+            log.info("User had not liked this comment: {}", commentId);
         }
+
+        commentRepository.save (comment);
     }
 
     public void deleteComment (Authentication connectedUser, UUID commentId){
