@@ -1,10 +1,7 @@
 package net.ibmer.dailyprophet.user.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import net.ibmer.dailyprophet.comments.models.Comment;
 import net.ibmer.dailyprophet.house.models.House;
 import net.ibmer.dailyprophet.patronus.models.Patronus;
@@ -15,15 +12,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.security.Principal;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 @Table(name = "users")
 public class User implements UserDetails, Principal {
     @Id
@@ -36,6 +32,23 @@ public class User implements UserDetails, Principal {
     private String imageUrl;
     private Boolean accountLocked;
     private Boolean enabled;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_followers",
+            joinColumns = @JoinColumn(name = "following_id"),
+            inverseJoinColumns = @JoinColumn(name = "follower_id")
+    )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    private Set<User> followers = new HashSet<>();
+
+    @ManyToMany(mappedBy = "followers")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    private Set<User> following = new HashSet<>();
 
     @ManyToOne
     private Wand wand;

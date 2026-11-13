@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -37,4 +39,45 @@ public class UserController {
     public ResponseEntity<UserFullResponse> updateCurrentUser(Authentication connectedUser, @RequestBody UserUpdateRequest request) {
         return ResponseEntity.ok(userService.updateCurrentUser(connectedUser, request));
     }
+
+    @PostMapping("/follow/{userId}")
+    @Operation(
+            summary = "Follow a User"
+    )
+    public ResponseEntity<Void> followUser(
+            Authentication connectedUser,
+            @PathVariable UUID userId
+    )
+    {
+        userService.followUser(connectedUser, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/follower/{userId}")
+    @Operation(
+            summary = "Remove a Follower"
+    )
+    public ResponseEntity<Void> removeFollower(
+            Authentication connectedUser,
+            @PathVariable UUID userId
+    )
+    {
+        userService.removeFollower(connectedUser, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/unfollow/{userId}")
+    @Operation(
+            summary = "Unfollow a User"
+    )
+    public ResponseEntity<Void> unfollowUser(
+            Authentication connectedUser,
+            @PathVariable UUID userId
+    )
+    {
+        userService.unfollowUser(connectedUser, userId);
+        return ResponseEntity.ok().build();
+    }
 }
+
+
