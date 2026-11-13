@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.ibmer.dailyprophet.user.dto.UserLeanResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,7 +17,7 @@ public class PostResponse {
     private UUID id;
     private String caption;
     private LocalDateTime timestamp;
-    private UserLeanResponse owner;
+    private UUID ownerId;
     private Boolean isDeleted;
     private Boolean isArchived;
 
