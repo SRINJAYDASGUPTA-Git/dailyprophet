@@ -34,6 +34,7 @@ public class SecurityConfig {
                                 "/api/v1/patronusCharms/**",
                                 "/api/v1/posts/**",
                                 "/api/v1/comments/**",
+                                "/api/v1/ws-chat/**",
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
                                 "/swagger-resources",
