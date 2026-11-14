@@ -7,7 +7,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.MessagingException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,10 +50,32 @@ public class AuthenticationController {
                     )
             }
     )
-    public ResponseEntity<AuthenticationResponse> register(
+    public ResponseEntity<Void> register(
             @RequestBody AuthenticationRequest request
-    ) throws BadRequestException {
-        return ResponseEntity.ok(authenticationService.register(request));
+    ) throws BadRequestException, MessagingException, jakarta.mail.MessagingException {
+        authenticationService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/activate")
+    @Operation(
+            summary = "Activate User Account",
+            description = "Activates a user account using the provided activation code. This is typically used after registration.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "User account activated successfully"
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "400",
+                            description = "Bad Request - Invalid activation token"
+                    )
+            }
+    )
+    public ResponseEntity<AuthenticationResponse> activateUser(
+            @RequestParam(name = "token") String token
+    ) throws MessagingException, jakarta.mail.MessagingException {
+        return ResponseEntity.ok(authenticationService.activateAccount (token));
     }
 
     @GetMapping("/refresh")

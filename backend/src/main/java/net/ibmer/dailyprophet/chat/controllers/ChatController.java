@@ -6,7 +6,11 @@ import net.ibmer.dailyprophet.chat.repositories.DirectMessageRepository;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 
 @RestController
@@ -22,7 +26,6 @@ public class ChatController {
     @MessageMapping("/chat.send")
     public void processMessage(@Payload DirectMessage chatMessage) {
         DirectMessage savedMsg = messageRepository.save(chatMessage);
-
         messagingTemplate.convertAndSendToUser(
                 chatMessage.getRecipientUsername(),
                 "/queue/messages",
