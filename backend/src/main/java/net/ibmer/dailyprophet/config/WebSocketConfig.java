@@ -13,7 +13,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // Updated to include your base URL
-        registry.addEndpoint("/api/v1/ws-chat").setAllowedOriginPatterns("*").withSockJS();
+        registry.addEndpoint("/api/v1/ws-chat")
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 
     @Override

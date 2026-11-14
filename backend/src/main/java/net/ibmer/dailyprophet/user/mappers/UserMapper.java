@@ -27,6 +27,7 @@ public class UserMapper {
         return UserFullResponse.builder()
                 .id(user.getId())
                 .name(user.getName())
+                .username(user.getUsername())
                 .email(user.getEmail())
                 .imageUrl(user.getImageUrl())
                 .accountLocked(user.getAccountLocked())

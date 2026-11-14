@@ -14,5 +14,6 @@ import java.util.UUID;
 public class UserLeanResponse {
     private UUID id;
     private String name;
+    private String username;
     private String imageUrl;
 }

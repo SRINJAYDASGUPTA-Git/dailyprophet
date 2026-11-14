@@ -21,6 +21,7 @@ public class UserFullResponse {
     private UUID id;
     private String name;
     private String email;
+    private String username;
     private String imageUrl;
     private Boolean accountLocked;
     private Boolean enabled;

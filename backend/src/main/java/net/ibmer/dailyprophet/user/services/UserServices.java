@@ -131,6 +131,7 @@ public class UserServices {
             userRepository.save(me);
         }
     }
+
     public WizardingWorldProfile fetchWizardingWorldProfile(String uid) {
         String url = PROFILE_URL + URLEncoder.encode(uid, StandardCharsets.UTF_8);
 
