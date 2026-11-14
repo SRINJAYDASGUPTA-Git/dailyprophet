@@ -7,6 +7,7 @@ public record AuthenticationRequest(
         String email,
         String password,
         String name,
+        String username,
         String imageUrl
 ) {
 }

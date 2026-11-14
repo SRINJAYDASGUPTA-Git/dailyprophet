@@ -62,6 +62,7 @@ public class AuthenticationService {
         
         User user = User.builder()
                 .name(authenticationRequest.name())
+                .username(authenticationRequest.username())
                 .email(authenticationRequest.email())
                 .password(passwordEncoder.encode (authenticationRequest.password()))
                 .imageUrl (authenticationRequest.imageUrl () == null ?
@@ -137,6 +138,10 @@ public class AuthenticationService {
                 )
         );
         var userVar = ((User) auth.getPrincipal ());
+        if(userVar == null){
+            throw new IllegalStateException("Authenticated principal cannot be null.");
+        }
+
         return buildJwtResponse(userVar);
     }
 
@@ -162,7 +167,12 @@ public class AuthenticationService {
 
     @Transactional
     public AuthenticationResponse refreshToken(Authentication connectedUser) {
+        if (connectedUser == null || connectedUser.getPrincipal() == null) {
+            throw new IllegalStateException("Authentication context or principal is missing.");
+        }
+
         User principal = (User) connectedUser.getPrincipal();
+
         User user = userRepository.findByEmail(principal.getEmail())
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
         return buildJwtResponse(user);
