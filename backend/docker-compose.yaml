@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  dailyprophet-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dailyprophet-backend
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+    depends_on:
+      - mongodb
+      - mydb2
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:8
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    env_file:
+      - .env
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+
+  mydb2:
+    image: icr.io/db2_community/db2
+    container_name: mydb2
+    privileged: true
+    ports:
+      # Host port changed to 50001 to avoid conflicting with Jenkins
+      - "50001:50000"
+    env_file:
+      - .env
+    volumes:
+      - db2_data:/database
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  db2_data:
