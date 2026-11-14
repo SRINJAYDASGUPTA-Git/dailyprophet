@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Activate Your Subscription | The Daily Prophet</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0f172a; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+
+<div style="
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 40px 30px;
+    border-radius: 6px;
+    background-color: #fdfbf7;
+    color: #1e293b;
+    text-align: center;
+    border: 2px solid #d4af37;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  ">
+
+    <!-- Logo -->
+    <img src="cid:logoImage" alt="Daily Prophet Logo" width="120" style="margin-bottom: 25px;" />
+
+    <!-- Title -->
+    <h1 style="font-size: 26px; margin: 0 0 15px; color: #0f172a; font-family: 'Georgia', serif; text-transform: uppercase; letter-spacing: 1.5px;">
+        Activate Your Subscription
+    </h1>
+
+    <!-- Greeting -->
+    <p style="font-size: 16px; margin: 0 0 15px; color: #334155;">
+        Greetings, <strong th:text="${userName}">Reader</strong>,
+    </p>
+
+    <!-- Message -->
+    <p style="font-size: 15px; margin-bottom: 30px; color: #475569; line-height: 1.6;">
+        Thank you for subscribing to the Wizarding World's beguiling broadsheet of choice! Please use the activation code below to verify your magical network connection.
+    </p>
+
+    <!-- Activation Code -->
+    <div style="
+        font-size: 32px;
+        font-weight: bold;
+        font-family: 'Courier New', Courier, monospace;
+        background-color: #0f172a;
+        color: #d4af37;
+        padding: 18px;
+        border-radius: 4px;
+        margin-bottom: 35px;
+        letter-spacing: 6px;
+        border: 1px dashed #d4af37;
+      ">
+        <span th:text="${activation_code}">123456</span>
+    </div>
+
+    <!-- CTA Button -->
+    <a
+            th:href="${confirmationUrl}"
+            href="https://localhost:3000/activate?code=123456"
+            target="_blank"
+            style="
+      display: inline-block;
+      background-color: #d4af37;
+      color: #0f172a;
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
+    ">
+        Verify Connection
+    </a>
+
+    <!-- Footer / Note -->
+    <p style="font-size: 13px; color: #64748b; margin-top: 35px; font-style: italic;">
+        If you did not request this parchment, you may safely toss it into the nearest fireplace.
+    </p>
+</div>
+
+</body>
+</html>
