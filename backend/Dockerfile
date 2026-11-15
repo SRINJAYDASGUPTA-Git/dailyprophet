@@ -8,14 +8,14 @@ RUN mvn dependency:go-offline -B
 
 # Copy source code and build the JAR
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn clean package
 
 # Stage 2: Run the application
 FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
 # Copy the built JAR from the builder stage
-COPY --from=builder /app/target/*SNAPSHOT.jar app.jar
+COPY --from=builder /app/target/*.jar app.jar
 
 # Expose the port your Spring Boot app runs on
 EXPOSE 8081
