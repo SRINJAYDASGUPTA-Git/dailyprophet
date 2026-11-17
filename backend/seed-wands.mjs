@@ -1,5 +1,5 @@
 const API_URL = "http://localhost:8081/api/v1/wands";
-const PROFILE_UID = process.env.PROFILE_UID;
+const PROFILE_UID = "1cf90be3-d444-410b-b6d2-122caced6911";
 
 if (!PROFILE_UID) {
     throw new Error("Set PROFILE_UID to a public Harry Potter profile UID.");
