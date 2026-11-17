@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
+import net.ibmer.dailyprophet.user.services.UsernameBloomFilterService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import java.util.regex.Pattern;
 public class UserController {
 
     private final UserServices userService;
+    private final UsernameBloomFilterService bloomFilterService;
     private static final Pattern UID_PATTERN = Pattern.compile("^[0-9a-fA-F-]{36}$");
 //    private final AuthenticationService authenticationService;
 
@@ -132,6 +134,13 @@ public class UserController {
         WizardingWorldProfile profile = userService.fetchWizardingWorldProfile (trimmedUid);
 
         return ResponseEntity.ok(userService.linkWizardingWorldAccount (connectedUser, profile));
+    }
+
+    @GetMapping("/check-username")
+    public ResponseEntity<Boolean> checkUsernameAvailability(@RequestParam String username) {
+        // Returns true if taken (or likely taken), false if definitely free
+        boolean isTaken = bloomFilterService.isUsernameTaken(username);
+        return ResponseEntity.ok(!isTaken); // Return true if available
     }
 }
 

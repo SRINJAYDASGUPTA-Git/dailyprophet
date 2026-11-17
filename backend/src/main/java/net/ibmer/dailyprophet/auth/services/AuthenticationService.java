@@ -13,6 +13,7 @@ import net.ibmer.dailyprophet.user.repositories.TokenRepository;
 import net.ibmer.dailyprophet.user.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.ibmer.dailyprophet.user.services.UsernameBloomFilterService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.MessagingException;
@@ -39,6 +40,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
+    private final UsernameBloomFilterService bloomFilterService;
 
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
@@ -56,8 +58,18 @@ public class AuthenticationService {
         if (userRepository.existsByEmail(authenticationRequest.email())) {
             throw new ExistingEmailConflictException("Email already exists");
         }
-        if (authenticationRequest.name() == null || authenticationRequest.email() == null || authenticationRequest.password() == null) {
+        if (authenticationRequest.name() == null ||
+                authenticationRequest.email() == null ||
+                authenticationRequest.password() == null
+        ) {
             throw new BadRequestException("Name, email, and password must not be null");
+        }
+
+        if (bloomFilterService.isUsernameTaken(authenticationRequest.username ())) {
+            // 2. ABSOLUTE check against MongoDB because of potential false positives
+            if (userRepository.existsByUsername(authenticationRequest.username ())) {
+                throw new ExistingEmailConflictException("Username is already taken");
+            }
         }
         
         User user = User.builder()
@@ -74,6 +86,7 @@ public class AuthenticationService {
                 .build();
 
         userRepository.save(user);
+        bloomFilterService.addUsername(user.getUsername());
         sendActivationEmail (user);
 //        return buildJwtResponse(user);
     }
