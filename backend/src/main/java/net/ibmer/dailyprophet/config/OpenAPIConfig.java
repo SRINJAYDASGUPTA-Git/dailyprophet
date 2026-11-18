@@ -18,9 +18,9 @@ import org.springframework.context.annotation.Configuration;
                         email = "dasguptasrinjay2004@gmail.com",
                         url = "https://www.srinjaydg.in/"
                 ),
-                title = "EnderDoes API",
+                title = "Daily Prophet API",
                 version = "1.0.0",
-                description = "EnderDoes API - A test ToDo for CI/CD practice."
+                description = "Daily Prophet API - A test ToDo for CI/CD practice."
         ),
         servers = {
                 @Server(

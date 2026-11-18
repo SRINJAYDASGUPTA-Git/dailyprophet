@@ -11,10 +11,10 @@ public class RootController {
     @GetMapping("/")
     @Operation(
             summary = "Root Endpoint",
-            description = "Returns a message indicating that the EnderDoes API server is running successfully."
+            description = "Returns a message indicating that the Daily Prophet server is running successfully."
     )
     public ResponseEntity<String> root() {
-        return ResponseEntity.ok("EnderDoes API Server Running successfully!");
+        return ResponseEntity.ok("Daily Prophet API Server Running successfully!");
     }
 
 }
