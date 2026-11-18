@@ -5,6 +5,7 @@ import net.ibmer.dailyprophet.auth.dto.AuthenticationResponse;
 import net.ibmer.dailyprophet.email.EmailService;
 import net.ibmer.dailyprophet.email.EmailTemplatename;
 import net.ibmer.dailyprophet.exceptions.ExistingEmailConflictException;
+import net.ibmer.dailyprophet.exceptions.UnauthorizedException;
 import net.ibmer.dailyprophet.security.JWTService;
 import net.ibmer.dailyprophet.user.models.Token;
 import net.ibmer.dailyprophet.user.models.User;
@@ -178,8 +179,22 @@ public class AuthenticationService {
                 .build ();
     }
 
+    private AuthenticationResponse buildJwtRefreshResponse(User user, String refreshToken){
+        var claims = new HashMap<String, Object>();
+        claims.put ("user_email", user.getEmail ());
+        claims.put("username", user.getUsername ());
+        var jwtToken = jWTService.generateAccessToken (
+                claims,
+                user
+        );
+        return AuthenticationResponse.builder ()
+                .access_token (jwtToken)
+                .refresh_token (refreshToken)
+                .build ();
+    }
+
     @Transactional
-    public AuthenticationResponse refreshToken(Authentication connectedUser) {
+    public AuthenticationResponse refreshToken(Authentication connectedUser, AuthenticationResponse request) {
         if (connectedUser == null || connectedUser.getPrincipal() == null) {
             throw new IllegalStateException("Authentication context or principal is missing.");
         }
@@ -188,6 +203,12 @@ public class AuthenticationService {
 
         User user = userRepository.findByEmail(principal.getEmail())
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
-        return buildJwtResponse(user);
+
+        String refresh_token = request.getRefresh_token ();
+
+        if(!jWTService.isRefreshTokenValid (refresh_token, user.getEmail ()))
+            throw new UnauthorizedException("Refresh token expired, please login again");
+
+        return buildJwtRefreshResponse (user, refresh_token);
     }
 }

@@ -78,14 +78,15 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.activateAccount (token));
     }
 
-    @GetMapping("/refresh")
+    @PostMapping("/refresh")
     @Operation(
             summary = "Refresh Token",
             description = "Refreshes the authentication token for the user. This is useful for maintaining user sessions without requiring re-login."
     )
     public ResponseEntity<AuthenticationResponse> refreshToken(
-            Authentication connectedUser
+            Authentication connectedUser,
+            @RequestBody AuthenticationResponse request
     ) {
-        return ResponseEntity.ok(authenticationService.refreshToken(connectedUser));
+        return ResponseEntity.ok(authenticationService.refreshToken(connectedUser, request));
     }
 }

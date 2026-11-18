@@ -49,6 +49,13 @@ public class UserController {
         return ResponseEntity.ok(userService.updateCurrentUser(connectedUser, request));
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserFullResponse> getUserById(
+            @PathVariable(value = "userId") UUID userId
+    ){
+        return ResponseEntity.ok (userService.findById(userId));
+    }
+
     @PostMapping("/follow/{userId}")
     @Operation(
             summary = "Follow a User"

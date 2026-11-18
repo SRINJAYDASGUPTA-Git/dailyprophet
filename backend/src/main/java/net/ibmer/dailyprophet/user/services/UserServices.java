@@ -284,4 +284,11 @@ public class UserServices {
         JsonNode target = root.path(list).path(key);
         return target.hasNonNull(field) ? target.get(field).asText() : fallback;
     }
+
+    public UserFullResponse findById(UUID userId) {
+        User user = userRepository.findById (userId).orElseThrow (
+                ()->new NoSuchElementException ("User not found")
+        );
+        return userMapper.toUserFullResponse (user);
+    }
 }
