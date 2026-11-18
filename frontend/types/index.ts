@@ -1,5 +1,7 @@
 // @/types/index.ts
 
+import {NextApiRequest} from "next";
+
 export interface WandRequest {
     wandKey?: string;
     length?: string;
@@ -104,7 +106,7 @@ export interface CommentResponse {
     timestamp?: string;
 }
 
-export interface AuthenticationRequest {
+export interface AuthenticationRequest extends Request{
     email?: string;
     password?: string;
     name?: string;
