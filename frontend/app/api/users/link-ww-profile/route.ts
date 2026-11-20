@@ -1,19 +1,8 @@
 import {NextRequest, NextResponse} from "next/server";
-import {UserFullResponse, WizardingWorldProfile} from "@/types";
+import {UserFullResponse} from "@/types";
 
 const BACKEND_URL =
     process.env.BACKEND_URL ?? "http://localhost:8081";
-
-function getAccessToken() {
-    return localStorage.getItem("access_token");
-}
-
-function unauthorized() {
-    return NextResponse.json(
-        {message: "Unauthorized"},
-        {status: 401}
-    );
-}
 
 export async function GET(
     _request: NextRequest
@@ -24,6 +13,7 @@ export async function GET(
     try{
         const backendResponse = await fetch(`${BACKEND_URL}/api/v1/users/link-ww-profile?uid=${uid}`, {
             method: "GET",
+            headers: _request.headers,
         });
 
         const data:UserFullResponse = await backendResponse.json();

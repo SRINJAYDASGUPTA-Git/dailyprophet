@@ -50,12 +50,14 @@ public class UserServices {
 
     @Transactional
     public UserFullResponse getCurrentUser(Authentication connectedUser) {
-        User user = (User) connectedUser.getPrincipal();
-        if(user == null){
+        if (connectedUser == null || !(connectedUser.getPrincipal() instanceof User principal)) {
             throw new UnauthorizedException("Login Please");
         }
-        //        log.info(response.toString());
-        return userMapper.toUserFullResponse(user);
+
+        User managedUser = userRepository.findById(principal.getId())
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
+
+        return userMapper.toUserFullResponse(managedUser);
     }
 
     public UserFullResponse updateCurrentUser(Authentication connectedUser, UserUpdateRequest request) {

@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
     try {
         const backendResponse = await fetch(`${BACKEND_URL}/api/v1/auth/activate?token=${token}`, {
             method: "POST",
+
         });
 
         const data: AuthenticationResponse = await backendResponse.json();

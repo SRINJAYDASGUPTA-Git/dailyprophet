@@ -30,22 +30,25 @@ public class JWTFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         System.out.println(request.getServletPath());
         String path = request.getServletPath();
-        if (path.startsWith("/api/v1/auth") &&
-                !path.matches(".*/(me|refresh)$")) {
+        if ((path.startsWith("/api/v1/auth") || path.startsWith ("/api/v1/users")) &&
+                !(path.endsWith ("me") || path.endsWith ("refresh"))) {
             filterChain.doFilter(request, response);
             return;
         }
+        System.out.println("PASSSSSSS");
 
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
+        System.out.println (authHeader);
         if(authHeader == null || !authHeader.startsWith("Bearer ")){
             filterChain.doFilter(request, response);
             return;
         }
         jwt = authHeader.substring(7);
+        System.out.println (jwt);
         userEmail = jwtService.extractClaim (jwt, "user_email", String.class);
-
+        System.out.println(userEmail);
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
             if (jwtService.isAccessTokenValid(jwt, userEmail)) {

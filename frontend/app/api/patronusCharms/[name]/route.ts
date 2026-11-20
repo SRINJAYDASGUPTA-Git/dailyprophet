@@ -3,39 +3,6 @@ import {NextRequest, NextResponse} from "next/server";
 const BACKEND_URL =
     process.env.BACKEND_URL ?? "http://localhost:8081";
 
-function getAccessToken() {
-    return localStorage.getItem("access_token");
-}
-
-function unauthorized() {
-    return NextResponse.json(
-        {message: "Unauthorized"},
-        {status: 401}
-    );
-}
-
-async function getBackendResponse(
-    name: string,
-    method: string
-) {
-    const accessToken = getAccessToken();
-
-    if (!accessToken) {
-        return unauthorized();
-    }
-
-    return fetch(
-        `${BACKEND_URL}/api/v1/patronusCharms/${name}`,
-        {
-            method,
-            headers: {
-                Authorization: `Bearer ${accessToken}`
-            },
-            cache: "no-store",
-        }
-    );
-}
-
 export async function GET(
     _request: NextRequest,
     {params}: { params: Promise<{ name: string }> }
@@ -43,9 +10,13 @@ export async function GET(
     try {
         const {name} = await params;
 
-        const backendResponse = await getBackendResponse(
-            name,
-            "GET"
+        const backendResponse = await fetch(
+            `${BACKEND_URL}/api/v1/patronusCharms/${name}`,
+            {
+                method: "GET",
+                headers: _request.headers,
+                cache: "no-store",
+            }
         );
 
         if (backendResponse instanceof NextResponse) {

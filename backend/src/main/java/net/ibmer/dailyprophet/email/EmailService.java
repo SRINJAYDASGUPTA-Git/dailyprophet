@@ -21,7 +21,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @RequiredArgsConstructor
 
 public class EmailService {
-
+    @Value("${spring.mail.username}")
+    String email_username;
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
 
@@ -52,7 +53,7 @@ public class EmailService {
         context.setVariables (properties);
 
         // Set basic email metadata
-        helper.setFrom ("contact@srinjaydg.in");
+        helper.setFrom (email_username);
         helper.setTo (to);
         helper.setSubject (subject);
 
@@ -60,9 +61,9 @@ public class EmailService {
         String htmlContent = templateEngine.process (templateName, context);
         helper.setText (htmlContent, true);
 
-        // Embed the logo from resources/static/logo.png
-        ClassPathResource logo = new ClassPathResource ("static/logo.png");
-        helper.addInline ("logoImage", logo);
+//        // Embed the logo from resources/static/logo.png
+//        ClassPathResource logo = new ClassPathResource ("static/logo.png");
+//        helper.addInline ("logoImage", logo);
 
         // Send
         mailSender.send (mimeMessage);

@@ -1,39 +1,20 @@
-import {NextRequest, NextResponse} from "next/server";
+import {NextResponse} from "next/server";
 import {VerifyWWAccessRequest} from "@/types";
 
 const BACKEND_URL =
     process.env.BACKEND_URL ?? "http://localhost:8081";
 
-function getAccessToken() {
-    return localStorage.getItem("access_token");
-}
-
-function unauthorized() {
-    return NextResponse.json(
-        {message: "Unauthorized"},
-        {status: 401}
-    );
-}
-
 export async function GET(
     _request: VerifyWWAccessRequest
 ){
     try{
-        const accessToken = getAccessToken();
-
         const body = _request.json();
-
-        if (!accessToken) {
-            return unauthorized();
-        }
 
         const backendResponse = await fetch(
             `${BACKEND_URL}/api/v1/users/verify-ww-access`,
             {
                 method: "GET",
-                headers: {
-                    Authorization: `Bearer ${accessToken}`
-                },
+                headers: _request.headers,
                 cache: "no-store",
                 body: JSON.stringify(body)
             }
@@ -41,7 +22,7 @@ export async function GET(
 
         const data= await backendResponse.json();
 
-        return NextResponse.json({
+        return NextResponse.json(data, {
             status: backendResponse.status,
         });
 

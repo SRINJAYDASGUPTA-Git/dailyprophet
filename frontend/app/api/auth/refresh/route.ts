@@ -4,7 +4,6 @@ import {AuthenticationResponse} from "@/types";
 const BACKEND_URL =
     process.env.BACKEND_URL ?? "http://localhost:8081";
 
-const REFRESH_TOKEN = localStorage.getItem("refreshToken")!;
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
@@ -13,10 +12,7 @@ export async function POST(request: NextRequest) {
             `${BACKEND_URL}/api/v1/auth/refresh`,
             {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authentication": `Bearer ${REFRESH_TOKEN}`
-                },
+                headers: request.headers,
                 body: JSON.stringify(body),
 
                 cache: "no-store",
@@ -39,8 +35,8 @@ export async function POST(request: NextRequest) {
         if (data.access_token === null || data.access_token === undefined || data.refresh_token === null || data.refresh_token === undefined) {
             throw new Error("Access token not returned by server");
         }
-        localStorage.setItem("accessToken", data.access_token);
-        localStorage.setItem("refreshToken", data.refresh_token);
+        // localStorage.setItem("accessToken", data.access_token);
+        // localStorage.setItem("refreshToken", data.refresh_token);
         return response;
     } catch (error) {
         console.error("Login proxy failed:", error);

@@ -1,59 +1,33 @@
 import {NextRequest, NextResponse} from "next/server";
-import {cookies} from "next/headers";
 
 const BACKEND_URL =
     process.env.BACKEND_URL ?? "http://localhost:8080";
 
-function getAccessToken() {
-    return localStorage.getItem("access_token");
-}
-
-function unauthorized() {
-    return NextResponse.json(
-        {message: "Unauthorized"},
-        {status: 401}
-    );
-}
-
 async function getBackendResponse(
-    id: string,
     method: string,
-    body?: unknown
+    id?: string,
+    body?: unknown,
+    headers?: any
 ) {
-    const accessToken = getAccessToken();
-
-    if (!accessToken) {
-        return unauthorized();
-    }
-
     return fetch(
         `${BACKEND_URL}/api/v1/users/me`,
         {
-            method,
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                ...(body !== undefined && {
-                    "Content-Type": "application/json",
-                }),
-            },
-            ...(body !== undefined && {
-                body: JSON.stringify(body),
-            }),
+            method: method,
+            headers: headers,
             cache: "no-store",
         }
     );
 }
-
 export async function GET(
-    _request: NextRequest,
-    {params}: { params: Promise<{ id: string }> }
+    _request: NextRequest
 ) {
     try {
-        const {id} = await params;
-
+        console.log(_request.headers)
         const backendResponse = await getBackendResponse(
-            id,
-            "GET"
+            "GET",
+            undefined,
+            null,
+            _request.headers,
         );
 
         if (backendResponse instanceof NextResponse) {
@@ -95,6 +69,7 @@ export async function PUT(
 
         const data = await backendResponse.json();
 
+        console.log(data)
         return NextResponse.json(data, {
             status: backendResponse.status,
         });

@@ -21,23 +21,16 @@ export async function POST(request: NextRequest) {
         );
 
         const data: AuthenticationResponse = await backendResponse.json();
-        console.log({data})
-        if (!backendResponse.ok) {
-            return NextResponse.json(data, {
-                status: backendResponse.status,
-            });
-        }
+        // console.log({data})
 
         const response = NextResponse.json(
-            {message: "Login successful"},
+            {message: "Login successful", data: data},
             {status: 200}
         );
 
         if (data.access_token === null || data.access_token === undefined || data.refresh_token === null || data.refresh_token === undefined) {
             throw new Error("Access token not returned by server");
         }
-        localStorage.setItem("accessToken", data.access_token);
-        localStorage.setItem("refreshToken", data.refresh_token);
         return response;
     } catch (error) {
         console.error("Login proxy failed:", error);
