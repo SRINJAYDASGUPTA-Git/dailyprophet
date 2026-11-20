@@ -2,6 +2,17 @@
 
 import {NextApiRequest} from "next";
 
+export interface WizardingWorldProfile {
+    uid?: string;
+    profileUrl?: string;
+    name?: string;
+    house?: string;
+    avatar?: string;
+    patronus?: PatronusResponse;
+    wand?: WandResponse;
+}
+
+
 export interface WandRequest {
     wandKey?: string;
     length?: string;
@@ -119,7 +130,7 @@ export interface AuthenticationResponse {
     refresh_token?: string;
 }
 
-export interface VerifyWWAccessRequest {
+export interface VerifyWWAccessRequest extends Request{
     oldName?: string;
     specialCharUnicode?: string;
     uid?: string;

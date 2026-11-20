@@ -62,7 +62,7 @@ export async function GET(
 
         return NextResponse.json(
             {message: "wand service unavailable."},
-            {status: 502}
+            {status: 503}
         );
     }
 }
