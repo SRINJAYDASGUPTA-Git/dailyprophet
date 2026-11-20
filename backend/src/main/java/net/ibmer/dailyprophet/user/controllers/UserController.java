@@ -144,10 +144,10 @@ public class UserController {
     }
 
     @GetMapping("/check-username")
-    public ResponseEntity<Boolean> checkUsernameAvailability(@RequestParam String username) {
+    public ResponseEntity<Map<String, Boolean>> checkUsernameAvailability(@RequestParam String username) {
         // Returns true if taken (or likely taken), false if definitely free
         boolean isTaken = bloomFilterService.isUsernameTaken(username);
-        return ResponseEntity.ok(!isTaken); // Return true if available
+        return ResponseEntity.ok(Map.of("usernameAvailable", !isTaken)); // Return true if available
     }
 }
 
