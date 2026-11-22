@@ -28,7 +28,7 @@ public class UserController {
 
     private final UserServices userService;
     private final UsernameBloomFilterService bloomFilterService;
-    private static final Pattern UID_PATTERN = Pattern.compile("^[0-9a-fA-F-]{36}$");
+//    private static final Pattern UID_PATTERN = Pattern.compile("^[0-9a-fA-F-]{36}$");
 //    private final AuthenticationService authenticationService;
 
     @GetMapping("/me")
@@ -99,45 +99,57 @@ public class UserController {
     public ResponseEntity<?> getWizardingWorldProfile(@RequestParam("uid") String uid) {
         String trimmedUid = uid != null ? uid.trim() : "";
 
-        if (!UID_PATTERN.matcher(trimmedUid).matches()) {
-            return ResponseEntity.badRequest ().body (Map.of ("error", "Enter a valid profile UID."));
-        }
+//        if (!UID_PATTERN.matcher(trimmedUid).matches()) {
+//            return ResponseEntity.badRequest ().body (Map.of ("error", "Enter a valid profile UID."));
+//        }
         WizardingWorldProfile profile = userService.fetchWizardingWorldProfile(trimmedUid);
         return ResponseEntity.ok(profile);
     }
 
-    @GetMapping ("/verify-ww-access")
+    @PostMapping ("/verify-ww-access")
     public ResponseEntity<?> verifyUserHasAccessToWWProfile(@RequestBody VerifyWWAccessRequest request) throws BadRequestException {
         String trimmedUid = request.uid () != null ? request.uid ().trim() : "";
+        System.out.println ("=======================================================");
+        System.out.println ("SERVICE FUNCTION START");
+        System.out.println ("=======================================================");
 
-        if (!UID_PATTERN.matcher(trimmedUid).matches()) {
-            throw new BadRequestException ("Invalid UID");
-        }
-
+        System.out.println ("UID: "+ request.uid ());
+        System.out.println ("Old Name: "+ request.oldName ());
+        System.out.println ("Unicode character "+ request.specialCharUnicode ());
         WizardingWorldProfile newProfile = userService.fetchWizardingWorldProfile(trimmedUid);
+
+        System.out.println("------------------------------------------------");
+
+        System.out.println("Fetched New Profile: ");
+
+        System.out.println("------------------------------------------------");
+
+        System.out.printf ("UID: %s\n Name: %s\n House: %s\n", newProfile.uid (), newProfile.name (), newProfile.house ());
 
         int splCharCodePoint = Integer.parseInt(request.specialCharUnicode ().replaceFirst("(?i)^U\\+", ""), 16);
         int firstCharCodePoint = newProfile.name ().codePointAt(0);
 
+        System.out.printf ("Special Char Codepoint: %d\t First Char Codepoint: %d", splCharCodePoint, firstCharCodePoint);
+
         if((splCharCodePoint != firstCharCodePoint) || newProfile.name ().equals (request.oldName ())){
             return ResponseEntity
                     .status (HttpStatus.FORBIDDEN)
-                    .body("Cannot Verify authority");
+                    .body(Map.of ("message", "Cannot Verify Authority"));
         }
 
         return ResponseEntity.accepted ().build ();
     }
 
     @GetMapping("/link-ww-profile")
-    public ResponseEntity<UserFullResponse> getWizardingWorldProfile(
+    public ResponseEntity<UserFullResponse> linkWizardingWorldProfile(
             Authentication connectedUser,
             @RequestParam("uid") String uid
-    ) throws BadRequestException {
+    ) {
         String trimmedUid = uid != null ? uid.trim() : "";
 
-        if (!UID_PATTERN.matcher(trimmedUid).matches()) {
-            throw new BadRequestException ("Invalid UID");
-        }
+//        if (!UID_PATTERN.matcher(trimmedUid).matches()) {
+//            throw new BadRequestException ("Invalid UID");
+//        }
         WizardingWorldProfile profile = userService.fetchWizardingWorldProfile (trimmedUid);
 
         return ResponseEntity.ok(userService.linkWizardingWorldAccount (connectedUser, profile));

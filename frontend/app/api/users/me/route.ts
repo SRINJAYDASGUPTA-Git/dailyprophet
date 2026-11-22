@@ -22,7 +22,6 @@ export async function GET(
     _request: NextRequest
 ) {
     try {
-        console.log(_request.headers)
         const backendResponse = await getBackendResponse(
             "GET",
             undefined,

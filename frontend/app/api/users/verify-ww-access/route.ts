@@ -4,25 +4,29 @@ import {VerifyWWAccessRequest} from "@/types";
 const BACKEND_URL =
     process.env.BACKEND_URL ?? "http://localhost:8081";
 
-export async function GET(
+export async function POST(
     _request: VerifyWWAccessRequest
 ){
     try{
-        const body = _request.json();
+        const body = await _request.json();
+        const authHeader =_request.headers.get("authorization")
+        console.log(body)
 
         const backendResponse = await fetch(
             `${BACKEND_URL}/api/v1/users/verify-ww-access`,
             {
-                method: "GET",
-                headers: _request.headers,
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(authHeader ? { Authorization: authHeader } : {}),
+                },
                 cache: "no-store",
                 body: JSON.stringify(body)
             }
         );
 
-        const data= await backendResponse.json();
 
-        return NextResponse.json(data, {
+        return NextResponse.json({
             status: backendResponse.status,
         });
 

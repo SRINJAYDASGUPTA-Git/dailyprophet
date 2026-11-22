@@ -20,6 +20,8 @@ import {
     QuestionnaireSubmit,
     QuestionnaireTitle,
 } from "@/components/ui/questionnaire"
+import {WizardingWorldProfile} from "@/types";
+import axiosInstance from "@/utils/axiosInstance";
 
 // --- Types ---
 
@@ -65,14 +67,14 @@ function unicodeToChar(codePoint: string): string {
  * Picks a random rendered character from UNICODE_LIST.
  * Optionally excludes the previous symbol so retries always issue a fresh one.
  */
-function getRandomRenderedSymbol(previousSymbol?: string): string {
+function getRandomRenderedSymbol(previousSymbol?: string): { rendered: string, unicode:string } {
     const renderedPool = UNICODE_LIST.map(unicodeToChar)
     const candidates = previousSymbol
         ? renderedPool.filter((char) => char !== previousSymbol)
         : renderedPool
 
     const randomIndex = Math.floor(Math.random() * candidates.length)
-    return candidates[randomIndex]
+    return {rendered: candidates[randomIndex], unicode: UNICODE_LIST[randomIndex]}
 }
 
 const PROFILE_URL_REGEX = /^https?:\/\/(www\.)?harrypotter\.com\/profile\/.+/i
@@ -103,15 +105,21 @@ const INSTRUCTION_PATH = [
  */
 async function fetchProfileData(
     profileUrl: string
-): Promise<HarryPotterProfile | null | undefined> {
+): Promise<WizardingWorldProfile | null | undefined> {
     // TODO: Implement GET profile API call
-
     try{
+        const uid = profileUrl.substring(36);
+        const backendResponse = await axiosInstance.get("/users/wizarding-world-profile?uid="+uid);
 
+        if(backendResponse.status === 200) {
+            return backendResponse.data;
+        }
     }
     catch (error) {
-        
+        return null;
     }
+
+    return null;
 }
 
 /**
@@ -120,9 +128,26 @@ async function fetchProfileData(
  */
 async function verifyProfileSymbol(
     profileUrl: string,
-    symbol: string
+    symbol: string,
+    oldName?: string,
 ): Promise<boolean | undefined> {
     // TODO: Implement verification API call
+    try{
+        const uid = profileUrl.substring(36);
+        const backendResponse = await axiosInstance.post("/users/verify-ww-access", {
+            oldName: oldName,
+            specialCharUnicode: symbol,
+            uid: uid
+        });
+        const data = backendResponse.data;
+        if(backendResponse.status === 200 && data.status === 202) {
+            return true;
+        }
+    } catch(error) {
+        return false;
+    }
+    return false;
+
 }
 
 // --- Page Component ---
@@ -130,8 +155,10 @@ async function verifyProfileSymbol(
 export default function LinkHarryPotterProfilePage() {
     const [activeStep, setActiveStep] = React.useState<StepName>("profile-link")
     const [profileUrl, setProfileUrl] = React.useState("")
-    const [profileData, setProfileData] = React.useState<HarryPotterProfile | null>(null)
+    const [profileData, setProfileData] = React.useState<WizardingWorldProfile | null>(null)
     const [verificationSymbol, setVerificationSymbol] = React.useState<string>("")
+    const [verificationSymbolUnicode, setVerificationSymbolUnicode] = React.useState<string>("");
+
 
     const [isLoadingProfile, setIsLoadingProfile] = React.useState(false)
     const [isVerifying, setIsVerifying] = React.useState(false)
@@ -168,11 +195,13 @@ export default function LinkHarryPotterProfilePage() {
             setIsLoadingProfile(true)
             try {
                 const data = await fetchProfileData(trimmedUrl)
+                console.log(data);
                 setProfileData(data ?? null)
 
                 // Step 4: Pick a random rendered Unicode symbol
-                const symbol = getRandomRenderedSymbol()
-                setVerificationSymbol(symbol)
+                const {rendered, unicode} = getRandomRenderedSymbol()
+                setVerificationSymbol(rendered)
+                setVerificationSymbolUnicode(unicode)
                 setAttemptCount(1)
                 setActiveStep("verify-symbol")
             } catch {
@@ -198,9 +227,12 @@ export default function LinkHarryPotterProfilePage() {
         setIsVerifying(true)
 
         try {
+            console.log(profileData)
+            await new Promise((resolve) => setTimeout(resolve, 20000))
             const verified = await verifyProfileSymbol(
                 profileUrl.trim(),
-                verificationSymbol
+                verificationSymbolUnicode,
+                profileData?.name
             )
 
             if (verified) {
@@ -209,16 +241,18 @@ export default function LinkHarryPotterProfilePage() {
             }
 
             // Step 7 (Failure branch): Repeat the algorithm with a fresh random symbol
-            const nextSymbol = getRandomRenderedSymbol(verificationSymbol)
+            const {rendered: nextSymbol, unicode} = getRandomRenderedSymbol(verificationSymbol)
             setVerificationSymbol(nextSymbol)
+            setVerificationSymbolUnicode(unicode)
             setAttemptCount((prev) => prev + 1)
             setCopied(false)
             setErrorMessage(
                 "Verification failed — we couldn't detect the symbol at the front of your name. A new symbol has been generated; please update your name and try again."
             )
         } catch {
-            const nextSymbol = getRandomRenderedSymbol(verificationSymbol)
+            const {rendered: nextSymbol, unicode} = getRandomRenderedSymbol(verificationSymbol)
             setVerificationSymbol(nextSymbol)
+            setVerificationSymbolUnicode(unicode)
             setAttemptCount((prev) => prev + 1)
             setCopied(false)
             setErrorMessage(
@@ -344,7 +378,7 @@ export default function LinkHarryPotterProfilePage() {
                                         </div>
                                         <div className="text-sm">
                                             <p className="font-medium">Your verification symbol</p>
-                                            <p className="text-muted-foreground">
+                                            <div className="text-muted-foreground">
                                                 Preview:{" "}
                                                 <p className="font-medium text-foreground">
                                                     <span lang="bn" style={SYMBOL_FONT_STYLE}>
@@ -352,7 +386,7 @@ export default function LinkHarryPotterProfilePage() {
                                                     </span>
                                                     {previewName}
                                                 </p>
-                                            </p>
+                                            </div>
                                         </div>
                                     </div>
 
