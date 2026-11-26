@@ -22,15 +22,6 @@ import {
 } from "@/components/ui/questionnaire"
 import {WizardingWorldProfile} from "@/types";
 import axiosInstance from "@/utils/axiosInstance";
-
-// --- Types ---
-
-interface HarryPotterProfile {
-    name?: string
-    house?: string
-    avatarUrl?: string
-}
-
 type StepName = "profile-link" | "verify-symbol"
 
 // --- Constants & Helpers ---
@@ -67,16 +58,18 @@ function unicodeToChar(codePoint: string): string {
  * Picks a random rendered character from UNICODE_LIST.
  * Optionally excludes the previous symbol so retries always issue a fresh one.
  */
-function getRandomRenderedSymbol(previousSymbol?: string): { rendered: string, unicode:string } {
-    const renderedPool = UNICODE_LIST.map(unicodeToChar)
-    const candidates = previousSymbol
-        ? renderedPool.filter((char) => char !== previousSymbol)
-        : renderedPool
+function getRandomRenderedSymbol(previousSymbol?: string) {
+    const candidates = UNICODE_LIST
+        .map((unicode) => ({
+            unicode,
+            rendered: unicodeToChar(unicode),
+        }))
+        .filter(({ rendered }) => rendered !== previousSymbol);
 
-    const randomIndex = Math.floor(Math.random() * candidates.length)
-    return {rendered: candidates[randomIndex], unicode: UNICODE_LIST[randomIndex]}
+    const randomIndex = Math.floor(Math.random() * candidates.length);
+
+    return candidates[randomIndex];
 }
-
 const PROFILE_URL_REGEX = /^https?:\/\/(www\.)?harrypotter\.com\/profile\/.+/i
 
 const QUESTIONNAIRE_ITEMS = [
@@ -133,21 +126,22 @@ async function verifyProfileSymbol(
 ): Promise<boolean | undefined> {
     // TODO: Implement verification API call
     try{
-        const uid = profileUrl.substring(36);
+        const uid = new URL(profileUrl).pathname
+            .split("/")
+            .filter(Boolean)
+            .at(-1);
+
+        if (!uid) return false;
         const backendResponse = await axiosInstance.post("/users/verify-ww-access", {
             oldName: oldName,
             specialCharUnicode: symbol,
             uid: uid
         });
-        const data = backendResponse.data;
-        if(backendResponse.status === 200 && data.status === 202) {
-            return true;
-        }
+        return backendResponse.status === 202;
     } catch(error) {
+        console.error("WW verification failed:", error);
         return false;
     }
-    return false;
-
 }
 
 // --- Page Component ---
@@ -222,44 +216,68 @@ export default function LinkHarryPotterProfilePage() {
     }
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault()
-        setErrorMessage(null)
-        setIsVerifying(true)
+        event.preventDefault();
+        setErrorMessage(null);
+        setIsVerifying(true);
 
         try {
-            console.log(profileData)
-            await new Promise((resolve) => setTimeout(resolve, 20000))
+            const uid = new URL(profileUrl.trim()).pathname
+                .split("/")
+                .filter(Boolean)
+                .at(-1);
+
+            if (!uid) {
+                throw new Error("Invalid Wizarding World profile URL");
+            }
+
+            // Step 1: Verify profile ownership
             const verified = await verifyProfileSymbol(
                 profileUrl.trim(),
                 verificationSymbolUnicode,
                 profileData?.name
-            )
+            );
 
-            if (verified) {
-                setIsVerified(true)
-                return
+            if (!verified) {
+                // Generate a fresh symbol only when verification fails
+                const { rendered, unicode } =
+                    getRandomRenderedSymbol(verificationSymbol);
+
+                setVerificationSymbol(rendered);
+                setVerificationSymbolUnicode(unicode);
+                setAttemptCount((prev) => prev + 1);
+                setCopied(false);
+
+                setErrorMessage(
+                    "Verification failed. A new symbol has been generated. Please update your profile and try again."
+                );
+
+                return;
             }
 
-            // Step 7 (Failure branch): Repeat the algorithm with a fresh random symbol
-            const {rendered: nextSymbol, unicode} = getRandomRenderedSymbol(verificationSymbol)
-            setVerificationSymbol(nextSymbol)
-            setVerificationSymbolUnicode(unicode)
-            setAttemptCount((prev) => prev + 1)
-            setCopied(false)
+            // Step 2: Link the verified profile to Daily Prophet
+            const linkResponse = await axiosInstance.get(
+                "/users/link-ww-profile",
+                {
+                    params: { uid },
+                }
+            );
+
+            if (linkResponse.status === 200) {
+                setIsVerified(true);
+            } else {
+                setErrorMessage(
+                    "Your profile was verified, but we couldn't link it to your Daily Prophet account. Please try again."
+                );
+            }
+
+        } catch (error) {
+            console.error("Wizarding World profile linking failed:", error);
+
             setErrorMessage(
-                "Verification failed — we couldn't detect the symbol at the front of your name. A new symbol has been generated; please update your name and try again."
-            )
-        } catch {
-            const {rendered: nextSymbol, unicode} = getRandomRenderedSymbol(verificationSymbol)
-            setVerificationSymbol(nextSymbol)
-            setVerificationSymbolUnicode(unicode)
-            setAttemptCount((prev) => prev + 1)
-            setCopied(false)
-            setErrorMessage(
-                "Something went wrong while verifying your profile. A new symbol has been generated — please try again."
-            )
+                "Something went wrong while linking your profile. Please try again."
+            );
         } finally {
-            setIsVerifying(false)
+            setIsVerifying(false);
         }
     }
 

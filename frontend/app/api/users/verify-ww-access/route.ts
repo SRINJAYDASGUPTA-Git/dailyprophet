@@ -1,16 +1,14 @@
-import {NextResponse} from "next/server";
-import {VerifyWWAccessRequest} from "@/types";
+// app/api/users/verify-ww-access/route.ts
+
+import { NextRequest, NextResponse } from "next/server";
 
 const BACKEND_URL =
     process.env.BACKEND_URL ?? "http://localhost:8081";
 
-export async function POST(
-    _request: VerifyWWAccessRequest
-){
-    try{
-        const body = await _request.json();
-        const authHeader =_request.headers.get("authorization")
-        console.log(body)
+export async function POST(request: NextRequest) {
+    try {
+        const body = await request.json();
+        const authHeader = request.headers.get("authorization");
 
         const backendResponse = await fetch(
             `${BACKEND_URL}/api/v1/users/verify-ww-access`,
@@ -21,22 +19,26 @@ export async function POST(
                     ...(authHeader ? { Authorization: authHeader } : {}),
                 },
                 cache: "no-store",
-                body: JSON.stringify(body)
+                body: JSON.stringify(body),
             }
         );
 
+        const responseBody = await backendResponse.text();
 
-        return NextResponse.json({
+        return new NextResponse(responseBody || null, {
             status: backendResponse.status,
+            headers: {
+                "Content-Type":
+                    backendResponse.headers.get("content-type") ??
+                    "application/json",
+            },
         });
-
-    }
-    catch (error) {
-        console.error("User Verify Wizardin world profile access proxy failed", error);
+    } catch (error) {
+        console.error("User Verify Wizarding World profile proxy failed:", error);
 
         return NextResponse.json(
-            {message: "User Verify Wizardin world profile access unavailable."},
-            {status: 503}
+            { message: "User Verify Wizarding World profile access unavailable." },
+            { status: 503 }
         );
     }
 }

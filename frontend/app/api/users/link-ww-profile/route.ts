@@ -1,33 +1,48 @@
-import {NextRequest, NextResponse} from "next/server";
-import {UserFullResponse} from "@/types";
+import { NextRequest, NextResponse } from "next/server";
 
 const BACKEND_URL =
     process.env.BACKEND_URL ?? "http://localhost:8081";
 
-export async function GET(
-    _request: NextRequest
-){
-    const searchParams = _request.nextUrl.searchParams;
-    const uid = searchParams.get("uid");
+export async function GET(request: NextRequest) {
+    try {
+        const authHeader = request.headers.get("authorization");
+        const uid = request.nextUrl.searchParams.get("uid");
 
-    try{
-        const backendResponse = await fetch(`${BACKEND_URL}/api/v1/users/link-ww-profile?uid=${uid}`, {
-            method: "GET",
-            headers: _request.headers,
-        });
+        if (!uid) {
+            return NextResponse.json(
+                { message: "Profile UID is required." },
+                { status: 400 }
+            );
+        }
 
-        const data:UserFullResponse = await backendResponse.json();
+        const backendResponse = await fetch(
+            `${BACKEND_URL}/api/v1/users/link-ww-profile?uid=${encodeURIComponent(uid)}`,
+            {
+                method: "GET",
+                headers: {
+                    ...(authHeader ? { Authorization: authHeader } : {}),
+                },
+                cache: "no-store",
+            }
+        );
 
-        return NextResponse.json(data, {
+        const responseBody = await backendResponse.text();
+
+        return new NextResponse(responseBody || null, {
             status: backendResponse.status,
+            headers: {
+                "Content-Type":
+                    backendResponse.headers.get("content-type") ??
+                    "application/json",
+            },
         });
-    }
-    catch(error){
-        console.error("User Linking Wizarding World Profile proxy failed", error);
+
+    } catch (error) {
+        console.error("Wizarding World profile linking proxy failed:", error);
 
         return NextResponse.json(
-            {message: "User linking wizarding world profile unavailable."},
-            {status: 503}
+            { message: "Profile linking unavailable." },
+            { status: 503 }
         );
     }
 }
