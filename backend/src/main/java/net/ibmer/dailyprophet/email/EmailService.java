@@ -62,8 +62,8 @@ public class EmailService {
         helper.setText (htmlContent, true);
 
 //        // Embed the logo from resources/static/logo.png
-//        ClassPathResource logo = new ClassPathResource ("static/logo.png");
-//        helper.addInline ("logoImage", logo);
+        ClassPathResource logo = new ClassPathResource ("static/logo.png");
+        helper.addInline ("logoImage", logo);
 
         // Send
         mailSender.send (mimeMessage);

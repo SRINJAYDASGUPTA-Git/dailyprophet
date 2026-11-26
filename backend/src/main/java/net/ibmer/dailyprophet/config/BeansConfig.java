@@ -18,7 +18,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -110,10 +109,5 @@ public class BeansConfig {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
-    }
-
-    @Bean
-    public SpringTemplateEngine springTemplateEngine(){
-        return new SpringTemplateEngine ();
     }
 }
