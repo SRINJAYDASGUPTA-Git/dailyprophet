@@ -15,10 +15,7 @@ import net.ibmer.dailyprophet.user.models.User;
 import net.ibmer.dailyprophet.user.repositories.UserRepository;
 import net.ibmer.dailyprophet.wand.models.Wand;
 import net.ibmer.dailyprophet.wand.repositories.WandRepo;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -135,15 +132,34 @@ public class UserServices {
     }
 
     public WizardingWorldProfile fetchWizardingWorldProfile(String uid) {
-        String url = PROFILE_URL + URLEncoder.encode(uid, StandardCharsets.UTF_8);
-
+        String url = PROFILE_URL
+                + URLEncoder.encode(uid, StandardCharsets.UTF_8)
+                + "?_=" + System.currentTimeMillis();
+    
         HttpHeaders headers = new HttpHeaders();
-        headers.set("User-Agent", "Mozilla/5.0");
-        headers.set("Accept", "text/html");
+        headers.setCacheControl(CacheControl.noCache());
+        headers.setPragma("no-cache");
+        headers.set("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.set("Pragma", "no-cache");
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-                url, HttpMethod.GET, new HttpEntity<> (headers), String.class
+                url,
+                HttpMethod.GET,
+                entity,
+                String.class
         );
+
+        System.out.println("Upstream status: " + response.getStatusCode());
+        System.out.println("Upstream Date: " +
+                response.getHeaders().getFirst("Date"));
+        System.out.println("Upstream Age: " +
+                response.getHeaders().getFirst("Age"));
+        System.out.println("Upstream Cache-Control: " +
+                response.getHeaders().getFirst("Cache-Control"));
+        System.out.println("Upstream ETag: " +
+                response.getHeaders().getFirst("ETag"));
 
         if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
             throw new RuntimeException("Profile request failed: HTTP " + response.getStatusCode());
