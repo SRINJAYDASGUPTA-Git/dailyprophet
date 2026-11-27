@@ -1,31 +1,25 @@
 "use client";
 
-import {useState} from "react";
-import {cn} from "@/lib/utils";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {
-    Field,
-    FieldGroup,
-    FieldLabel,
-} from "@/components/ui/field";
-import {Eye, EyeOff} from "lucide-react";
-import {useRouter} from "next/navigation";
+import { cn } from "@/lib/utils";
 import axios from "@/utils/axiosInstance";
+import { useUser } from "@/providers/UserContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
 type RegisterFormProps = {
     className?: string;
 } & React.HTMLAttributes<HTMLFormElement>;
 
-export function RegisterForm({
-                                 className,
-                                 ...props
-                             }: RegisterFormProps) {
+export function RegisterForm({ className, ...props }: RegisterFormProps) {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
-
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -35,35 +29,39 @@ export function RegisterForm({
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+    const {user, loading: userLoading} = useUser();
     const router = useRouter();
 
-    async function handleSubmit(
-        e: React.FormEvent<HTMLFormElement>
-    ) {
+    useEffect(() => {
+        if (user && !userLoading) {
+            router.replace("/dashboard");
+        }
+    }, [user, userLoading, router]);
+
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
         setLoading(true);
         setError("");
 
         if (password !== confirmPassword) {
-            setError("Passwords do not match.");
+            setError("Passphrases do not match.");
             setLoading(false);
             return;
         }
 
         try {
+            const trimmedName = name.trim();
             const result = await axios.post("/auth/register", {
-                name: name,
-                email: email,
-                username: username,
-                password: password,
-                imageUrl: `https://avatar.vercel.sh/${name}`
+                name: trimmedName,
+                email: email.trim(),
+                username: username.trim(),
+                password,
+                imageUrl: `https://avatar.vercel.sh/${encodeURIComponent(trimmedName)}`,
             });
 
             if (result.status !== 200 && result.status !== 201) {
-                setError(
-                    result.data?.message || "Something went wrong"
-                );
+                setError(result.data?.message || "Something went wrong.");
                 setLoading(false);
                 return;
             }
@@ -71,8 +69,7 @@ export function RegisterForm({
             router.push("/activate");
         } catch (err: any) {
             setError(
-                err.response?.data?.message ||
-                "Unable to create your account."
+                err.response?.data?.message || "Unable to create your account."
             );
             setLoading(false);
         }
@@ -80,101 +77,110 @@ export function RegisterForm({
 
     return (
         <form
-            data-testid={"register-form"}
+            data-testid="register-form"
             onSubmit={handleSubmit}
-            className={cn(
-                "flex flex-col gap-6",
-                className
-            )}
+            className={cn("flex flex-col gap-5", className)}
             {...props}
         >
-            <FieldGroup>
-                <div className="space-y-2 text-center">
-                    <h1 className="text-2xl font-semibold tracking-tight">
-                        Create an account
-                    </h1>
-
-                    <p className="text-sm text-muted-foreground">
-                        Create your account to start managing your todos.
+            <FieldGroup className="gap-4">
+                <div className="space-y-1.5 text-center">
+                    <p className="font-mono text-[10px] tracking-[0.22em] text-gold uppercase">
+                        Press Registry
+                    </p>
+                    <h2 className="font-display text-2xl font-semibold tracking-wide text-card-foreground">
+                        Begin Subscription
+                    </h2>
+                    <p className="font-serif text-sm text-muted-foreground">
+                        Open your correspondent account to publish and follow dispatches.
                     </p>
                 </div>
 
+                {/* Name & Username side-by-side on sm+ */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <Field>
+                        <FieldLabel
+                            htmlFor="name"
+                            className="font-mono text-[11px] tracking-wider text-muted-foreground uppercase"
+                        >
+                            Full Name
+                        </FieldLabel>
+                        <Input
+                            data-testid="register-name"
+                            id="name"
+                            type="text"
+                            placeholder="Srinjay Dasgupta"
+                            autoComplete="name"
+                            required
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="rounded-sm bg-background/60 focus-visible:border-gold focus-visible:ring-gold/30"
+                        />
+                    </Field>
+
+                    <Field>
+                        <FieldLabel
+                            htmlFor="username"
+                            className="font-mono text-[11px] tracking-wider text-muted-foreground uppercase"
+                        >
+                            Byline / Handle
+                        </FieldLabel>
+                        <Input
+                            data-testid="register-username"
+                            id="username"
+                            type="text"
+                            placeholder="harry_potter"
+                            autoComplete="username"
+                            required
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            className="rounded-sm bg-background/60 font-mono text-sm focus-visible:border-gold focus-visible:ring-gold/30"
+                        />
+                    </Field>
+                </div>
+
                 <Field>
-                    <FieldLabel htmlFor="name">
-                        Name
+                    <FieldLabel
+                        htmlFor="email"
+                        className="font-mono text-[11px] tracking-wider text-muted-foreground uppercase"
+                    >
+                        Owl Post / Email
                     </FieldLabel>
-
                     <Input
-                        data-testid={"register-name"}
-                        id="name"
-                        type="text"
-                        placeholder="Srinjay Dasgupta"
-                        autoComplete="name"
-                        required
-                        value={name}
-                        onChange={(e) =>
-                            setName(e.target.value)
-                        }
-                    />
-                </Field>
-
-                <Field>
-                    <FieldLabel htmlFor="email">
-                        Email
-                    </FieldLabel>
-
-                    <Input
-                        data-testid={"register-email"}
+                        data-testid="register-email"
                         id="email"
                         type="email"
-                        placeholder="you@example.com"
+                        placeholder="correspondent@dailyprophet.co"
                         autoComplete="email"
                         required
                         value={email}
-                        onChange={(e) =>
-                            setEmail(e.target.value)
-                        }
-                    />
-                </Field>
-                <Field>
-                    <FieldLabel htmlFor="email">
-                        Username
-                    </FieldLabel>
-
-                    <Input
-                        data-testid={"register-username"}
-                        id="username"
-                        type="text"
-                        placeholder="harry_potter"
-                        required
-                        value={username}
-                        onChange={(e) =>
-                            setUsername(e.target.value)
-                        }
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="rounded-sm bg-background/60 focus-visible:border-gold focus-visible:ring-gold/30"
                     />
                 </Field>
 
                 <Field>
-                    <FieldLabel htmlFor="password">
-                        Password
+                    <FieldLabel
+                        htmlFor="password"
+                        className="font-mono text-[11px] tracking-wider text-muted-foreground uppercase"
+                    >
+                        Passphrase
                     </FieldLabel>
-
                     <div className="relative">
                         <Input
-                            data-testid={"register-password"}
+                            data-testid="register-password"
                             id="password"
                             type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
                             autoComplete="new-password"
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="pr-10"
+                            className="rounded-sm bg-background/60 pr-10 focus-visible:border-gold focus-visible:ring-gold/30"
                         />
-
                         <button
                             type="button"
                             onClick={() => setShowPassword((prev) => !prev)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                             aria-label={showPassword ? "Hide password" : "Show password"}
                         >
                             {showPassword ? (
@@ -187,32 +193,30 @@ export function RegisterForm({
                 </Field>
 
                 <Field>
-                    <FieldLabel htmlFor="confirm-password">
-                        Confirm Password
+                    <FieldLabel
+                        htmlFor="confirm-password"
+                        className="font-mono text-[11px] tracking-wider text-muted-foreground uppercase"
+                    >
+                        Confirm Passphrase
                     </FieldLabel>
-
                     <div className="relative">
                         <Input
-                            data-testid={"register-confirm-password"}
+                            data-testid="register-confirm-password"
                             id="confirm-password"
                             type={showConfirmPassword ? "text" : "password"}
+                            placeholder="••••••••"
                             autoComplete="new-password"
                             required
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="pr-10"
+                            className="rounded-sm bg-background/60 pr-10 focus-visible:border-gold focus-visible:ring-gold/30"
                         />
-
                         <button
                             type="button"
-                            onClick={() =>
-                                setShowConfirmPassword((prev) => !prev)
-                            }
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            onClick={() => setShowConfirmPassword((prev) => !prev)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                             aria-label={
-                                showConfirmPassword
-                                    ? "Hide password"
-                                    : "Show password"
+                                showConfirmPassword ? "Hide password" : "Show password"
                             }
                         >
                             {showConfirmPassword ? (
@@ -225,36 +229,54 @@ export function RegisterForm({
                 </Field>
 
                 {error && (
-                    <p data-testid={"register-error"} className="text-sm text-destructive">
+                    <div
+                        data-testid="register-error"
+                        role="alert"
+                        className="rounded-sm border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+                    >
                         {error}
-                    </p>
+                    </div>
                 )}
 
                 <Button
-                    data-testid={"register-submit"}
+                    data-testid="register-submit"
                     type="submit"
                     disabled={loading}
-                    className="w-full"
+                    className="mt-1 h-10 w-full rounded-sm font-mono text-xs font-semibold tracking-[0.16em] uppercase"
                 >
-                    {loading
-                        ? "Creating account..."
-                        : "Create Account"}
+                    {loading ? (
+                        <>
+                            <Loader2 className="mr-2 size-3.5 animate-spin"/>
+                            Issuing Credentials...
+                        </>
+                    ) : (
+                        "Create Account"
+                    )}
                 </Button>
 
-                <p className="text-center text-xs text-muted-foreground">
-                    By creating an account, you agree to the
-                    application&apos;s terms and policies.
+                <p className="text-center font-serif text-xs text-muted-foreground italic">
+                    An activation cipher will be dispatched to your inbox upon signing up.
                 </p>
 
+                <div className="relative my-0.5">
+                    <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-border"/>
+                    </div>
+                    <div className="relative flex justify-center">
+            <span className="bg-card px-2 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+              Existing Reader
+            </span>
+                    </div>
+                </div>
+
                 <p className="text-center text-sm text-muted-foreground">
-                    Already have an account?{" "}
-                    <button
-                        type="button"
-                        onClick={() => router.push("/login")}
-                        className="font-medium text-foreground hover:underline"
+                    Already have a subscription?{" "}
+                    <Link
+                        href="/login"
+                        className="font-medium text-gold underline-offset-4 hover:underline"
                     >
                         Sign in
-                    </button>
+                    </Link>
                 </p>
             </FieldGroup>
         </form>

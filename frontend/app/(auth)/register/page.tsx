@@ -1,90 +1,16 @@
-import React from 'react'
-import {ListTodo, ShieldCheck, Zap} from "lucide-react";
-import {RegisterForm} from "@/components/register-form";
-import Image from "next/image";
+import { AuthSplitShell } from "@/components/auth-split-shell";
+import { RegisterForm } from "@/components/register-form";
 
-const year = new Date().getFullYear();
-const RegisterPage = () => {
+export default function RegisterPage() {
     return (
-        <div className="grid min-h-screen lg:grid-cols-2">
-            {/* Left */}
-            <div className="flex flex-col justify-between border-r bg-[#18181a] p-8 lg:p-12">
-                <div className="flex items-center justify-center w-full gap-3">
-                    <Image src={'/logo.svg'} alt={'logo'} width={150} height={37}  />
-                </div>
-
-                <div className="mx-auto max-w-md space-y-10">
-                    <div className="space-y-4">
-                        <h1 className="text-5xl font-bold tracking-tight">
-                            Get things
-                            <br />
-                            <span className="text-primary">done.</span>
-                        </h1>
-
-                        <p className="text-muted-foreground">
-                            Organize your tasks, keep track of what
-                            matters, and turn your plans into things
-                            actually done.
-                        </p>
-                    </div>
-
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-3 rounded-lg border p-4">
-                            <ListTodo className="size-5 text-primary" />
-
-                            <div>
-                                <p className="font-medium">
-                                    Organize Your Tasks
-                                </p>
-
-                                <p className="text-sm text-muted-foreground">
-                                    Keep everything you need to do in one place.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 rounded-lg border p-4">
-                            <Zap className="size-5 text-primary" />
-
-                            <div>
-                                <p className="font-medium">
-                                    Stay Focused
-                                </p>
-
-                                <p className="text-sm text-muted-foreground">
-                                    Focus on what matters and move things forward.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-3 rounded-lg border p-4">
-                            <ShieldCheck className="size-5 text-primary" />
-
-                            <div>
-                                <p className="font-medium">
-                                    Secure by Design
-                                </p>
-
-                                <p className="text-sm text-muted-foreground">
-                                    Your account and tasks stay protected.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <p className="text-xs text-muted-foreground">
-                    © {year} DailyProphet
-                </p>
-            </div>
-
-            {/* Right */}
-            <div className="flex items-center justify-center bg-muted/20 p-8">
-                <div className="w-full max-w-sm">
-                    <RegisterForm />
-                </div>
-            </div>
-        </div>
+        <AuthSplitShell
+            eyebrow="New Subscription"
+            headlineTop="Claim your byline"
+            headlineAccent="in today's edition."
+            description="Register your correspondent credentials, verify via Owl Post, and link your Wizarding World profile to join the press."
+            cardMaxWidth="max-w-md"
+        >
+            <RegisterForm />
+        </AuthSplitShell>
     );
 }
-export default RegisterPage
