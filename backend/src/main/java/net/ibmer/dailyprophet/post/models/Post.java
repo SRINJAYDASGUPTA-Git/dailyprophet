@@ -1,6 +1,5 @@
 package net.ibmer.dailyprophet.post.models;
 
-import com.mongodb.lang.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import net.ibmer.dailyprophet.comments.models.Comment;
@@ -25,11 +24,12 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(columnDefinition = "text[]")
     private List<String> mediaUrls;
     private Boolean isDeleted;
     private Boolean isArchived;
 
-    @Nullable
+    @Column(columnDefinition = "TEXT")
     private String caption;
 
     @CreationTimestamp

@@ -20,7 +20,7 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String body;
     private Integer likes;
     private Integer replyCount;
